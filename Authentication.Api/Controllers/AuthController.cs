@@ -17,24 +17,35 @@ namespace Authentication.Api.Controllers
         public IUserService UserService { get; set; }
         public IAuthService AuthService { get; set; }
         public IConfiguration Configuration { get; set; }
+
         public AuthController(IUserService userService, IConfiguration configuration, IAuthService authService)
         {
             UserService = userService;
             Configuration = configuration;
             AuthService = authService;
         }
+
         [HttpPost]
         [Route("login")]
         public IActionResult UserLogin([FromBody] LoginModel loginModel)
         {
-            if (!UserService.IsUserEmailAndPasswordExist(loginModel)) return Forbid("Wrong Credentials");
-            return Ok(AuthService.CreateTokenByLoginModel(loginModel));
+            if (!UserService.IsUserEmailAndPasswordExist(loginModel)) return BadRequest("Wrong Credentials");
+            return Ok(AuthService.GetTokenModel(loginModel));
         }
+
         [HttpPost]
-        [Route("tokenRefresh")]
+        [Route("token")]
         public IActionResult GetTokenModel([FromBody] TokenModel tokenModel)
         {
-            return Ok(AuthService.GetTokenModelByTokenModel(tokenModel));
+            try
+            {
+                var token = AuthService.GetTokenModel(tokenModel);
+                return Ok(token);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }
