@@ -1,4 +1,4 @@
-﻿namespace Authentication.Shared.Library.Constants
+﻿namespace Authentication.Api.Constants
 {
     public class UserRole
     {

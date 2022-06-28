@@ -1,6 +1,6 @@
 ﻿using System.Text;
-using Authentication.Business.Interfaces;
-using Authentication.Business.Services;
+using Authentication.Api.Interfaces;
+using Authentication.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -39,7 +39,7 @@ namespace Authentication.Api
                 };
             });
             services.AddSingleton<IUserService, UserService>();
-            services.AddSingleton<ITokenService, TokenService>();
+            services.AddSingleton<IAuthService, AuthService>();
             services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer(); 

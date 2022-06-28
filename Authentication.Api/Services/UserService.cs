@@ -1,8 +1,8 @@
-﻿using Authentication.Shared.Library.Models;
-using Authentication.Business.Interfaces;
-using Authentication.Shared.Library.Constants;
+﻿using Authentication.Api.Constants;
+using Authentication.Api.Interfaces;
+using Authentication.Api.Models;
 
-namespace Authentication.Business.Services
+namespace Authentication.Api.Services
 {
     public class UserService : IUserService
     {
@@ -26,6 +26,12 @@ namespace Authentication.Business.Services
         public List<UserModel> GetAllUsers()
         {
             return userList;
+        }
+        public bool IsUserEmailAndPasswordExist(LoginModel loginModel)
+        {
+            UserModel user = GetUserByEmail(loginModel.Email);
+            if (user == null) return false;
+            return (user.Password == loginModel.Password);
         }
     }
 }

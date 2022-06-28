@@ -1,11 +1,12 @@
-﻿using Authentication.Shared.Library.Models;
+﻿using Authentication.Api.Models;
 
-namespace Authentication.Business.Interfaces
+namespace Authentication.Api.Interfaces
 {
     public interface IUserService
     {
         UserModel CreateUser(UserModel userModel);
         UserModel GetUserByEmail(string email);
         List<UserModel> GetAllUsers();
+        bool IsUserEmailAndPasswordExist(LoginModel loginModel);
     }
 }

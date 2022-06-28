@@ -1,4 +1,4 @@
-﻿namespace Authentication.Shared.Library.Models
+﻿namespace Authentication.Api.Models
 {
     public class LoginModel
     {
