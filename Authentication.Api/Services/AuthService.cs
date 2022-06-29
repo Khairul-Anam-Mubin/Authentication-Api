@@ -78,6 +78,8 @@ namespace Authentication.Api.Services
 
         public TokenModel GetTokenModel(LoginModel loginModel)
         {
+            if (!UserService.IsUserEmailAndPasswordExist(loginModel))
+                throw new Exception("User Credential is not valid.");
             UserModel userModel = UserService.GetUserByEmail(loginModel.Email);
             TokenModel tokenModel = CreateTokenModel(userModel);
             SaveTokenModel(tokenModel);

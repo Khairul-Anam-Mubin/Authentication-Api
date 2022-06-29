@@ -29,10 +29,16 @@ namespace Authentication.Api.Controllers
         [Route("login")]
         public IActionResult UserLogin([FromBody] LoginModel loginModel)
         {
-            if (!UserService.IsUserEmailAndPasswordExist(loginModel)) return BadRequest("Wrong Credentials");
-            return Ok(AuthService.GetTokenModel(loginModel));
+            try
+            {
+                var token = AuthService.GetTokenModel(loginModel);
+                return Ok(token);
+            }
+            catch (Exception e)
+            {
+               return BadRequest(e.Message);
+            }
         }
-
         [HttpPost]
         [Route("token")]
         public IActionResult GetTokenModel([FromBody] TokenModel tokenModel)

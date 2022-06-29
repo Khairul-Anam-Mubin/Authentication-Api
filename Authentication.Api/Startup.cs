@@ -8,8 +8,8 @@ namespace Authentication.Api
 {
     public class Startup
     {
-        public static IConfiguration Configuration { get; set; }
-        public static IWebHostEnvironment Environment { get; set; }
+        private static IConfiguration Configuration { get; set; }
+        private static IWebHostEnvironment Environment { get; set; }
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
