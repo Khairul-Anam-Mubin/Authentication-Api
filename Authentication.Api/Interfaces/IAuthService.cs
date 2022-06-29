@@ -13,7 +13,7 @@ namespace Authentication.Api.Interfaces
         bool IsExpiredRefreshToken(TokenModel tokenModel);
         List<Claim> GetClaimsFromAccessToken(string accessToken);
 
-        // DB service method
+        // DB Call methods
         TokenModel GetTokenModelByAccessToken(string accessToken);
         public void SaveTokenModel(TokenModel tokenModel);
         public TokenModel UpdateTokenModel(TokenModel tokenModel);

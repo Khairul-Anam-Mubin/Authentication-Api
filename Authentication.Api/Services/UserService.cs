@@ -9,10 +9,19 @@ namespace Authentication.Api.Services
         private List<UserModel> userList = new List<UserModel>();
         public UserModel CreateUser(UserModel userModel)
         {
+            if (string.IsNullOrEmpty(userModel.Email)) throw new Exception("Invalid Request. Email needed.");
+            if (GetUserByEmail(userModel.Email) != null) throw new Exception("User Email already exist");
             userModel.CreatedAt = DateTime.Now;
             userModel.IsDeleted = false;
             userModel.UserRole = UserRole.Visitor;
-            userList.Add(userModel);
+            try
+            {
+                userList.Add(userModel);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Create User failed.");
+            }
             return userModel;
         }
         public UserModel GetUserByEmail(string email)

@@ -1,7 +1,6 @@
 ﻿using Authentication.Api.Interfaces;
 using Authentication.Api.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Authentication.Api.Controllers
@@ -25,8 +24,15 @@ namespace Authentication.Api.Controllers
         [Route("createUser")]
         public IActionResult CreateUser([FromBody] UserModel userModel)
         {
-            userModel = UserService.CreateUser(userModel);
-            return Ok(userModel);
+            try
+            {
+                var createdUserModel = UserService.CreateUser(userModel);
+                return Ok(createdUserModel);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
