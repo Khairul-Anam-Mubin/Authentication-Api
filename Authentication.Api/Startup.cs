@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Authentication.Api.Database;
 using Authentication.Api.Interfaces;
 using Authentication.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -38,6 +39,8 @@ namespace Authentication.Api
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF32.GetBytes(Configuration["JWT:SecretKey"]))
                 };
             });
+            services.AddSingleton<IDatabaseClient, DatabaseClient>();
+            services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IAuthService, AuthService>();
             services.AddControllers();

@@ -1,4 +1,5 @@
 ﻿using Authentication.Api.Constants;
+using Authentication.Api.Database;
 using Authentication.Api.Interfaces;
 using Authentication.Api.Models;
 
@@ -6,7 +7,13 @@ namespace Authentication.Api.Services
 {
     public class UserService : IUserService
     {
-        private List<UserModel> userList = new List<UserModel>();
+        private IUserRepository UserRepository { get; set; }
+        private IDatabaseClient DatabaseClient { get; set; }
+        public UserService(IUserRepository userRepository, IDatabaseClient databaseClient)
+        {
+            UserRepository = userRepository;
+            DatabaseClient = databaseClient;
+        }
         public UserModel CreateUser(UserModel userModel)
         {
             if (string.IsNullOrEmpty(userModel.Email)) throw new Exception("Invalid Request. Email needed.");
@@ -16,7 +23,7 @@ namespace Authentication.Api.Services
             userModel.UserRole = UserRole.Visitor;
             try
             {
-                userList.Add(userModel);
+                DatabaseClient.Insert(userModel);
             }
             catch (Exception ex)
             {
@@ -25,16 +32,12 @@ namespace Authentication.Api.Services
             return userModel;
         }
         public UserModel GetUserByEmail(string email)
-        {
-            foreach (var user in userList)
-            {
-                if (user.Email == email) return user;
-            }
-            return null;
+        { 
+            return UserRepository.GetUserByEmail(email);
         }
         public List<UserModel> GetAllUsers()
         {
-            return userList;
+            return DatabaseClient.GetAllItems<UserModel>();
         }
         public bool IsUserEmailAndPasswordExist(LoginModel loginModel)
         {

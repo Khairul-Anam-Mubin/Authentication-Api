@@ -1,6 +1,8 @@
-﻿namespace Authentication.Api.Models
+﻿using Authentication.Api.Interfaces;
+
+namespace Authentication.Api.Models
 {
-    public class UserModel
+    public class UserModel : IRepositoryItem
     {
         public string Id { get; set; }
         public string FirstName { get; set; }
