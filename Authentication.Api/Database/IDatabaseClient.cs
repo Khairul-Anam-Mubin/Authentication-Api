@@ -7,8 +7,11 @@ namespace Authentication.Api.Database
     public interface IDatabaseClient
     {
         public IMongoDatabase GetDatabase();
-        public IMongoCollection<BsonDocument> GetCollection(string collectionName);
-        public void Insert<T>(T item) where T : class, IRepositoryItem;
+        public IMongoCollection<BsonDocument> GetCollection<T>() where T: class, IRepositoryItem;
+        public void InsertItem<T>(T item) where T : class, IRepositoryItem;
+        public void UpdateItem<T>(T item) where T : class, IRepositoryItem;
+        public void DeleteItem<T>(string id) where T : class, IRepositoryItem;
+        public T GetItem<T>(string id) where T : class, IRepositoryItem;
         public List<T> GetAllItems<T>() where T: class, IRepositoryItem;
     }
 }

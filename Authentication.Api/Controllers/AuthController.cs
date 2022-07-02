@@ -10,15 +10,11 @@ namespace Authentication.Api.Controllers
     {
         public IUserService UserService { get; set; }
         public IAuthService AuthService { get; set; }
-        public IConfiguration Configuration { get; set; }
-
-        public AuthController(IUserService userService, IConfiguration configuration, IAuthService authService)
+        public AuthController(IUserService userService, IAuthService authService)
         {
             UserService = userService;
-            Configuration = configuration;
             AuthService = authService;
         }
-
         [HttpPost]
         [Route("login")]
         public IActionResult UserLogin([FromBody] LoginModel loginModel)

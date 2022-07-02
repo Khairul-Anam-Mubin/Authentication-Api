@@ -2,9 +2,14 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Authentication.Api.Constants;
+using Authentication.Api.Database;
 using Authentication.Api.Interfaces;
 using Authentication.Api.Models;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 
 namespace Authentication.Api.Services
 {
@@ -12,22 +17,20 @@ namespace Authentication.Api.Services
     {
         private IConfiguration Configuration { get; }
         private IUserService UserService { get; }
-
-        public AuthService(IConfiguration configuration, IUserService userService)
+        private IDatabaseClient DatabaseClient { get; set; }
+        public AuthService(IConfiguration configuration, IUserService userService, IDatabaseClient databaseClient)
         {
             Configuration = configuration;
             UserService = userService;
+            DatabaseClient = databaseClient;
         }
-
-        List<TokenModel> tokenModelList = new List<TokenModel>();
-
         public string GenerateAccessToken(List<Claim> claims)
         {
             // JWT Config
-            string signingKey = Configuration["JWT:SecretKey"];
-            string validIssuer = Configuration["JWT:ValidIssuer"];
-            string audience = Configuration["JWT:ValidAudience"];
-            int accessTokenValidityInMinutes = Convert.ToInt32(Configuration["JWT:AccessTokenValidityInMinutes"]);
+            string signingKey = Configuration[Jwt.SecretKey];
+            string validIssuer = Configuration[Jwt.ValidIssuer];
+            string audience = Configuration[Jwt.ValidAudience];
+            int accessTokenValidityInMinutes = Convert.ToInt32(Configuration[Jwt.AccessTokenValidityInMinutes]);
 
             // JWT Creation
             var secretKey = new SymmetricSecurityKey(Encoding.UTF32.GetBytes(signingKey));
@@ -43,7 +46,6 @@ namespace Authentication.Api.Services
             string accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
             return accessToken;
         }
-
         public string GenerateRefreshToken()
         {
             var randomNumber = new byte[64];
@@ -51,13 +53,11 @@ namespace Authentication.Api.Services
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
         }
-
         public DateTime GetRefreshTokenExpiredDateTime()
         {
-            var refreshTokenValidityInDays = Convert.ToInt32(Configuration["JWT:RefreshTokenValidityInDays"]);
+            var refreshTokenValidityInDays = Convert.ToInt32(Configuration[Jwt.RefreshTokenValidityInDays]);
             return DateTime.Now.AddDays(refreshTokenValidityInDays);
         }
-
         public TokenModel CreateTokenModel(UserModel userModel)
         {
             List<Claim> claims = new List<Claim>();
@@ -75,7 +75,6 @@ namespace Authentication.Api.Services
                 RefreshTokenExpiredDateTime = refreshTokeExpiredDateTime
             };
         }
-
         public TokenModel GetTokenModel(LoginModel loginModel)
         {
             if (!UserService.IsUserEmailAndPasswordExist(loginModel))
@@ -85,7 +84,6 @@ namespace Authentication.Api.Services
             SaveTokenModel(tokenModel);
             return tokenModel;
         }
-
         public TokenModel GetTokenModel(TokenModel tokenModel)
         {
             var tokenModelFromContext = GetTokenModelByAccessToken(tokenModel.AccessToken);
@@ -101,7 +99,6 @@ namespace Authentication.Api.Services
             tokenModelFromContext.RefreshTokenExpiredDateTime = GetRefreshTokenExpiredDateTime();
             return UpdateTokenModel(tokenModelFromContext);
         }
-
         public bool IsExpiredRefreshToken(TokenModel tokenModel)
         {
             var currentDateTime = DateTime.Now;
@@ -109,40 +106,27 @@ namespace Authentication.Api.Services
             if (compare > 0) return true;
             return false;
         }
-
         public List<Claim> GetClaimsFromAccessToken(string accessToken)
         {
             var handler = new JwtSecurityTokenHandler();
             var jwt = handler.ReadJwtToken(accessToken);
             return jwt.Claims.ToList();
         }
-
         public TokenModel GetTokenModelByAccessToken(string accessToken)
         {
-            foreach (var tokenModel in tokenModelList)
-            {
-                if (tokenModel.AccessToken == accessToken)
-                {
-                    return tokenModel;
-                }
-            }
-
-            return null;
+            var collection = DatabaseClient.GetCollection<TokenModel>();
+            var filter = Builders<BsonDocument>.Filter.Eq("AccessToken", accessToken);
+            var bsonDocument = collection.Find(filter).FirstOrDefault();
+            TokenModel tokenModel = BsonSerializer.Deserialize<TokenModel>(bsonDocument);
+            return tokenModel;
         }
         public void SaveTokenModel(TokenModel tokenModel)
         {
-            tokenModelList.Add(tokenModel);
+            DatabaseClient.InsertItem<TokenModel>(tokenModel);
         }
         public TokenModel UpdateTokenModel(TokenModel tokenModel)
         {
-            for (int i = 0; i < tokenModelList.Count; i++)
-            {
-                if (tokenModelList[i].Id == tokenModel.Id)
-                {
-                    tokenModelList[i] = tokenModel;
-                    break;
-                }
-            }
+            DatabaseClient.UpdateItem<TokenModel>(tokenModel);
             return tokenModel;
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Authentication.Api.Constants;
 using Authentication.Api.Database;
 using Authentication.Api.Interfaces;
 using Authentication.Api.Services;
@@ -9,14 +10,13 @@ namespace Authentication.Api
 {
     public class Startup
     {
-        private static IConfiguration Configuration { get; set; }
-        private static IWebHostEnvironment Environment { get; set; }
+        public static IConfiguration Configuration { get; set; } 
+        public static IWebHostEnvironment Environment { get; set; }
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
             Environment = environment;
         }
-
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(options =>
@@ -34,22 +34,17 @@ namespace Authentication.Api
                     ValidateIssuerSigningKey = true,
 
                     ClockSkew = TimeSpan.Zero,
-                    ValidIssuer = Configuration["JWT:ValidIssuer"],
-                    ValidAudience = Configuration["JWT:ValidAudience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF32.GetBytes(Configuration["JWT:SecretKey"]))
+                    ValidIssuer = Configuration[Jwt.ValidIssuer],
+                    ValidAudience = Configuration[Jwt.ValidAudience],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF32.GetBytes(Configuration[Jwt.SecretKey]))
                 };
             });
-            services.AddSingleton<IDatabaseClient, DatabaseClient>();
-            services.AddSingleton<IUserRepository, UserRepository>();
-            services.AddSingleton<IUserService, UserService>();
-            services.AddSingleton<IAuthService, AuthService>();
+            AddServices(services);
             services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer(); 
             services.AddSwaggerGen();
-
         }
-
         public void Configure(IApplicationBuilder app)
         {
             if (Environment.IsDevelopment())
@@ -65,6 +60,12 @@ namespace Authentication.Api
             {
                 endpoints.MapControllers();
             });
+        }
+        public void AddServices(IServiceCollection services)
+        {
+            services.AddSingleton<IDatabaseClient, DatabaseClient>();
+            services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<IAuthService, AuthService>();
         }
     }
 }

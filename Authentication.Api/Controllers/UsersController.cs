@@ -14,14 +14,7 @@ namespace Authentication.Api.Controllers
         {
             UserService = userService;
         }
-        [HttpGet]
-        [Authorize]
-        public IActionResult Users()
-        {
-            return Ok(UserService.GetAllUsers());
-        }
         [HttpPost]
-        [Route("createUser")]
         public IActionResult CreateUser([FromBody] UserModel userModel)
         {
             try
@@ -34,5 +27,55 @@ namespace Authentication.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPut]
+        [Authorize]
+        public IActionResult UpdateUser([FromBody] UserModel userModel)
+        {
+            try
+            {
+                var updatedUserModel = UserService.UpdateUser(userModel);
+                return Ok(updatedUserModel);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public IActionResult DeleteUser(string id)
+        {
+            try
+            {
+                var deletedUserModel = UserService.DeleteUser(id);
+                return Ok(deletedUserModel);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("{id}")]
+        [Authorize]
+        public IActionResult GetUser(string id)
+        {
+            try
+            {
+                var userModel = UserService.GetUser(id);
+                return Ok(userModel);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [HttpGet]
+        [Authorize]
+        public IActionResult Users()
+        {
+            return Ok(UserService.GetAllUsers());
+        }
+        
     }
 }
