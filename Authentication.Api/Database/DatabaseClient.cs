@@ -11,7 +11,7 @@ namespace Authentication.Api.Database
         private readonly IMongoDatabase _database;
         public DatabaseClient(IConfiguration configuration)
         {
-            var client = new MongoClient(configuration[DatabaseSettings.ConnectionSting]);
+            var client = new MongoClient(configuration[DatabaseSettings.ConnectionString]);
             _database = client.GetDatabase(configuration[DatabaseSettings.DatabaseName]);
         }
         public IMongoDatabase GetDatabase()

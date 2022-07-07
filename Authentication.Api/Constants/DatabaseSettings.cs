@@ -3,6 +3,6 @@
     public class DatabaseSettings
     {
         public const string DatabaseName = "DatabaseSettings:DatabaseName";
-        public const string ConnectionSting = "DatabaseSettings:ConnectionString";
+        public const string ConnectionString = "DatabaseSettings:ConnectionString";
     }
 }
